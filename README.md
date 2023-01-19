@@ -27,5 +27,5 @@ CREATE TABLE `images` (
 - Flickr Api key updated in ini file 
 - paths to update in ini file 
 
-- libraries : sqlalchemy , configparser ,pandas , requests , PIL
+- libraries : sqlalchemy , configparser ,pandas , requests , PILOW-PIL
 
