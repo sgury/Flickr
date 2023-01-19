@@ -113,8 +113,6 @@ class FlickrImageDownload:
     def write_sources(self,tableName='images'):
             dframe = pd.DataFrame(self.sources, columns=['url','file_loc','hashed_sha256','keyword'])
             dframe = dframe.astype({"url": 'string', "file_loc":'string' ,"hashed_sha256":'string' ,"keyword":'string'})
-            print(dframe.dtypes)
-            print('*'*88)
             try:
                 print(dframe.head())
                 c1 = DBconnector()
