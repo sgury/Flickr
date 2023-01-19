@@ -11,9 +11,9 @@ Project For Data Loops
 
 
 
-# pre-required :
+####pre-required :
 
-# mysql Image - with Db called Flickr , Table- 
+- mysql Image - with Db called Flickr , Table- 
 CREATE TABLE `images` (
   `scrape_datetime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `url` varchar(400) DEFAULT NULL,
@@ -22,6 +22,7 @@ CREATE TABLE `images` (
   `keyword` varchar(100) DEFAULT NULL
 )
 
-# Flickr Api key updated in ini file 
-# paths to update in ini file 
+-Flickr Api key updated in ini file 
+-paths to update in ini file 
+
 
