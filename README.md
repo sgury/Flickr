@@ -1,6 +1,6 @@
 # Flickr
 Project For Data Loops 
-##this is the first version 
+##### this is the first version 
 
 - main.py 
    -   class DBconnector ( creates a mysql connection ) 
