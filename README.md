@@ -5,7 +5,7 @@ Project For Data Loops
 - main.py 
    -   class DBconnector ( creates a mysql connection ) 
    -   FlickrImageDownload ( scrape and downloads from Flicker )
-   -   Main ( Run Scrape Sample , and Quaery sample )       
+   -   Main ( Run Scrape Sample , and Query sample )       
    
 -Saved parameters (ini file )
 
