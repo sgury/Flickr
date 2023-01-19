@@ -59,7 +59,7 @@ class FlickrImageDownload:
         :param method: method to the Flickr Api
         :param query: all query params
         :return: the urls list
-        except: prints the massage and return None
+        :except: prints the massage and return None
         '''
         try:
             response_pic = requests.get('https://www.flickr.com/services/rest/?method='+method,
@@ -173,7 +173,7 @@ def search_key_scraped(keyword , min_date=None , max_date=None , size=100):
     :param max_date: date max for time scraped if None take currentDate included
     :param size: amount of rows returning
     :return: dataframe with Sql result
-    :Excection if Error - return None
+    :except: if Error - return None
     '''
     if not(min_date ) or not(max_date):
         min_date = (date.today() - timedelta(days=30)).isoformat()
@@ -193,6 +193,7 @@ def hms_string(sec_elapsed):
 
     :param sec_elapsed: amount sec
     :return: amount formated by hour:min:sec
+    
     '''
     h = int(sec_elapsed / (60 * 60))
     m = int((sec_elapsed % (60 * 60)) / 60)
