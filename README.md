@@ -13,7 +13,7 @@ Project For Data Loops
 
 ### pre-required :
 
-- mysql Image - with Db called Flickr , Table- 
+- mysql Image - Table : 
 ```sql
 CREATE TABLE `images` (
   `scrape_datetime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
