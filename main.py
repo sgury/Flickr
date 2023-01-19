@@ -9,6 +9,7 @@ import json
 from PIL import Image, ImageFilter
 from io import BytesIO
 from hashlib import sha256
+import sys
 import re
 class DBconnector:
 
@@ -22,17 +23,21 @@ class DBconnector:
 
 
 class FlickrImageDownload:
-    def __init__(self):
+    def __init__(self, keyword=None):
         self.config = configparser.ConfigParser()
         self.config.read("config_flickr.ini")
         self.config_path = self.config['Download']['path']
         self.api_key = self.config['FLICKR']['id']
+        self.license= self.config['Download']['license']
         self.checkInit =True
         self.config_format =self.config['Process']['image_format']
         if not (os.path.exists(self.config_path)):
             print("path not exists")
             self.checkInit = False
-        #if requests.get("")
+        if keyword:
+            self.keyword =keyword
+        else:
+            self.keyword = self.config['Download']['search']
 
     def reset_counts(self):
         self.download_count = 0
@@ -42,6 +47,7 @@ class FlickrImageDownload:
         self.error_count = 0
         self.cached = 0
         self.sources = []
+        self.urls=[]
 
     def load_image(self, url):
         try:
@@ -66,8 +72,7 @@ class FlickrImageDownload:
             self.cached += 1
             return None
 
-    def obtain_photo(self, photo):
-        url = photo.get('url_c')
+    def obtain_photo(self, url):
         if url:
             image, h = self.load_image(url)
             if image:
@@ -103,8 +108,8 @@ class FlickrImageDownload:
 
 
 def main():
-    scrape_Flickr('doodle',200)
-    print(search_key_scraped('doodle',size=200).head())
+    scrape_Flickr()
+    print(search_key_scraped('glass',size=200).head())
 
 
 def search_key_scraped(keyword , min_date=None , max_date=None , size =100):
@@ -134,57 +139,58 @@ def create_dir(keywords, config_path):
         os.mkdir(dir_path)
     return dir_path
 
+def create_request_get_urls(method , query ,license):
+    try:
+        response_pic = requests.get('https://www.flickr.com/services/rest/?method=flickr.photos.search', params=query)
+        response_pic.raise_for_status()
+        if response_pic.status_code != 200:
+            print('status code returned', response_pic.text['massage'])
+            raise Exception
+        if not json.loads(response_pic.text)['photos']['photo']:
+            print('error no photos')
+            raise Exception
+        photos = json.loads(response_pic.text)['photos']['photo']
+        urls=[]
+        for photo in photos:
+            url = photo.get(license)
+            if url:
+                #print(url)
+                urls.append(url)
+        return urls
+    except requests.exceptions.HTTPError as errh:
+        print(errh)
+    except requests.exceptions.ConnectionError as errc:
+        print(errc)
+    except requests.exceptions.Timeout as errt:
+        print(errt)
+    except requests.exceptions.RequestException as err:
+        print(err)
+    except Exception as e:
+        print(e)
 
 
-def scrape_Flickr(keywords, max_per_page=100):
-        try:
-            flk = FlickrImageDownload()
-            if not flk.checkInit:
-                print('No Path Exists')
-                raise Exception
-            query = {
-                'api_key': flk.api_key,
-                'format': 'json',
-                'text': keywords,
-                'tags': keywords,
-                'tag_mode': 'all',
-                'extras': 'url_c,license',
-                'sort': 'relevance',
-                'nojsoncallback': '1',
-                'per_page': max_per_page}
-            response_pic = requests.get('https://www.flickr.com/services/rest/?method=flickr.photos.search', params=query)
-            response_pic.raise_for_status()
-            if response_pic.status_code!=200 :
-                print('status code returned', response_pic.text['massage'])
-                raise Exception
-            #print(response_pic.text)
-            flk.reset_counts()
-            if not json.loads(response_pic.text)['photos']['photo']:
-                print('error no photos')
-                raise Exception
-            photos = json.loads(response_pic.text)['photos']['photo']
-            dir_path = create_dir(keywords, flk.config_path)
-            for photo in photos:
-                url = photo.get('url_c')
-                img = flk.obtain_photo(photo)
+
+def scrape_Flickr(keywords=None, max_per_page=100):
+        flk = FlickrImageDownload(keywords)
+        flk.reset_counts()
+        if not flk.checkInit:
+            print('No Path Exists')
+            raise Exception
+        query = {'api_key': flk.api_key,'format': 'json','text': flk.keyword,'tags': flk.keyword,'tag_mode': 'all','extras': 'url_c,license','sort': 'relevance','nojsoncallback': '1', 'per_page': max_per_page}
+        method= 'flickr.photos.search'
+        flk.urls = create_request_get_urls(method ,query,flk.license.split(',')[0])
+        if flk.urls:
+            dir_path = create_dir(flk.keyword, flk.config_path)
+            for url in flk.urls:
+                img = flk.obtain_photo(url)
                 if img:
-                    sub_keywords=  re.sub('[^\w]','_',keywords)
+                    sub_keywords=  re.sub('[^\w]','_',flk.keyword)
                     path = flk.check_to_keep_photo(url,img,sub_keywords,dir_path)
                     if path:
                         img.save(path)
             flk.write_sources()
             elapsed_time = time.time() - flk.start_time
             print("Complete, elapsed time: {}".format(hms_string(elapsed_time)))
-        except requests.exceptions.HTTPError as errh:
-            print(errh)
-        except requests.exceptions.ConnectionError as errc:
-            print(errc)
-        except requests.exceptions.Timeout as errt:
-            print(errt)
-        except requests.exceptions.RequestException as err:
-            print(err)
-        except Exception as e :
-            print(e)
 
 if __name__ == "__main__":
     main()
