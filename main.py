@@ -49,6 +49,35 @@ class FlickrImageDownload:
         self.sources = []
         self.urls=[]
 
+    def create_request_get_urls(self , method, query):
+        try:
+            response_pic = requests.get('https://www.flickr.com/services/rest/?method=flickr.photos.search',
+                                        params=query)
+            response_pic.raise_for_status()
+            if response_pic.status_code != 200:
+                print('status code returned', response_pic.text['massage'])
+                raise Exception
+            if not json.loads(response_pic.text)['photos']['photo']:
+                print('error no photos')
+                raise Exception
+            photos = json.loads(response_pic.text)['photos']['photo']
+            urls = []
+            for photo in photos:
+                url = photo.get(self.license)
+                if url:
+                    # print(url)
+                    urls.append(url)
+            return urls
+        except requests.exceptions.HTTPError as errh:
+            print(errh)
+        except requests.exceptions.ConnectionError as errc:
+            print(errc)
+        except requests.exceptions.Timeout as errt:
+            print(errt)
+        except requests.exceptions.RequestException as err:
+            print(err)
+        except Exception as e:
+            print(e)
     def load_image(self, url):
         try:
             response = requests.get(url)
@@ -139,34 +168,6 @@ def create_dir(keywords, config_path):
         os.mkdir(dir_path)
     return dir_path
 
-def create_request_get_urls(method , query ,license):
-    try:
-        response_pic = requests.get('https://www.flickr.com/services/rest/?method=flickr.photos.search', params=query)
-        response_pic.raise_for_status()
-        if response_pic.status_code != 200:
-            print('status code returned', response_pic.text['massage'])
-            raise Exception
-        if not json.loads(response_pic.text)['photos']['photo']:
-            print('error no photos')
-            raise Exception
-        photos = json.loads(response_pic.text)['photos']['photo']
-        urls=[]
-        for photo in photos:
-            url = photo.get(license)
-            if url:
-                #print(url)
-                urls.append(url)
-        return urls
-    except requests.exceptions.HTTPError as errh:
-        print(errh)
-    except requests.exceptions.ConnectionError as errc:
-        print(errc)
-    except requests.exceptions.Timeout as errt:
-        print(errt)
-    except requests.exceptions.RequestException as err:
-        print(err)
-    except Exception as e:
-        print(e)
 
 
 
@@ -178,7 +179,7 @@ def scrape_Flickr(keywords=None, max_per_page=100):
             raise Exception
         query = {'api_key': flk.api_key,'format': 'json','text': flk.keyword,'tags': flk.keyword,'tag_mode': 'all','extras': 'url_c,license','sort': 'relevance','nojsoncallback': '1', 'per_page': max_per_page}
         method= 'flickr.photos.search'
-        flk.urls = create_request_get_urls(method ,query,flk.license.split(',')[0])
+        flk.urls = flk.create_request_get_urls(method ,query)
         if flk.urls:
             dir_path = create_dir(flk.keyword, flk.config_path)
             for url in flk.urls:
