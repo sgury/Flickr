@@ -29,5 +29,5 @@ CREATE TABLE `images` (
 
 - libraries : sqlalchemy 1.4.46 , configparser ,pandas , requests , PILOW-PIL , PyMySQL	1.0.2
 
--- part of the code was taken from : jeffheaton/pyimgdata
+###### part of the code was taken from : jeffheaton/pyimgdata
 
