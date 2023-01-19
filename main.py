@@ -78,6 +78,7 @@ class FlickrImageDownload:
             print(err)
         except Exception as e:
             print(e)
+        return None
     def load_image(self, url):
         try:
             response = requests.get(url)
