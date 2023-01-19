@@ -91,9 +91,10 @@ class FlickrImageDownload:
 
     def load_image(self, url):
         '''
-        :param url: gets a url to liad an image
+        :param url: gets a url to load an image into an object 
         :return: image and hash code
         :except: any exception return None
+        ## taken as an idea from - jeffheaton/pyimgdata
         '''
         try:
             response = requests.get(url)
