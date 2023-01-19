@@ -7,7 +7,7 @@ Project For Data Loops
    -   FlickrImageDownload ( scrape and downloads from Flicker )
    -   Main ( Run Scrape Sample , and Query sample )       
    
--Saved parameters (ini file )
+- Saved parameters (ini file )
 
 
 
